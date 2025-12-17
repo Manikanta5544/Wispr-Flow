@@ -1,4 +1,4 @@
-import type { AudioCaptureCallbacks } from '../types';
+import type { AudioCaptureCallbacks, AudioChunk } from '../types';
 import { float32ToInt16 } from '../utils/audioUtils';
 import { AUDIO_CONFIG } from '../config/constants';
 
@@ -40,7 +40,8 @@ export const createAudioCapture = (callbacks: AudioCaptureCallbacks) => {
         callbacks.onAudioData({
           data: pcm16,
           timestamp: Date.now(),
-        });
+        } satisfies AudioChunk);
+
       };
 
       source.connect(processor);

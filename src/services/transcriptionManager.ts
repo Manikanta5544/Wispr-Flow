@@ -15,6 +15,7 @@ export class TranscriptionManager {
 
   private audioCapture: ReturnType<typeof createAudioCapture> | null = null;
   private deepgramClient: ReturnType<typeof createDeepgramClient> | null = null;
+  private isSocketReady = false;
 
   constructor(callbacks: TranscriptionManagerCallbacks) {
     this.callbacks = callbacks;
@@ -24,11 +25,17 @@ export class TranscriptionManager {
   async start(): Promise<void> {
     if (!this.canStart()) return;
 
+    if (this.state === RecordingState.Error) {
+      this.cleanup();
+    }
+
     this.setState(RecordingState.RequestingPermission);
 
     try {
       this.audioCapture = createAudioCapture({
         onAudioData: (chunk) => {
+          if (!this.isSocketReady) return;
+
           this.deepgramClient?.sendAudio(chunk.data);
 
           if (typeof chunk.level === 'number') {
@@ -64,15 +71,17 @@ export class TranscriptionManager {
             timestamp: Date.now(),
           });
         },
+
         onClose: () => {
-          if (this.state === RecordingState.Recording) {
-            this.stop();
-          }
+          // Final transcripts arrive before this
+          this.cleanup();
+          this.setState(RecordingState.Idle);
         },
       });
 
-      // Ensure WebSocket is ready before audio starts flowing
       await this.deepgramClient.connect();
+      this.isSocketReady = true;
+
       await this.audioCapture.start();
 
       this.transcriptBuffer = '';
@@ -96,10 +105,8 @@ export class TranscriptionManager {
     try {
       this.audioCapture?.stop();
       this.deepgramClient?.finish();
-    } finally {
-      // Preventing Zombie Websockets, memory leaks and dangling audio contexts
-      this.cleanup();
-      this.setState(RecordingState.Idle);
+    } catch {
+      // no-op
     }
   }
 
@@ -144,10 +151,7 @@ export class TranscriptionManager {
     this.callbacks.onStateChange(nextState);
   }
 
-  private isValidTransition(
-    from: RecordingState,
-    to: RecordingState
-  ): boolean {
+  private isValidTransition(from: RecordingState, to: RecordingState): boolean {
     const validTransitions: Record<RecordingState, RecordingState[]> = {
       [RecordingState.Idle]: [RecordingState.RequestingPermission],
       [RecordingState.RequestingPermission]: [
@@ -173,7 +177,10 @@ export class TranscriptionManager {
   }
 
   private canStart(): boolean {
-    return this.state === RecordingState.Idle;
+    return (
+      this.state === RecordingState.Idle ||
+      this.state === RecordingState.Error
+    );
   }
 
   private canStop(): boolean {
@@ -186,5 +193,6 @@ export class TranscriptionManager {
 
     this.audioCapture = null;
     this.deepgramClient = null;
+    this.isSocketReady = false;
   }
 }

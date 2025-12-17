@@ -24,6 +24,7 @@ export interface StatusIndicatorProps {
 export interface AudioChunk {
   data: Int16Array;
   timestamp: number;
+  level?: number;
 }
 
 export interface AudioCaptureCallbacks {
