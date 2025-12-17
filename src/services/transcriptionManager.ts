@@ -30,7 +30,12 @@ export class TranscriptionManager {
       this.audioCapture = createAudioCapture({
         onAudioData: (chunk) => {
           this.deepgramClient?.sendAudio(chunk.data);
+
+          if (typeof chunk.level === 'number') {
+            this.callbacks.onAudioLevel?.(chunk.level);
+          }
         },
+
         onPermissionDenied: () => {
           this.handleError({
             type: 'MICROPHONE_PERMISSION_DENIED',
@@ -38,6 +43,7 @@ export class TranscriptionManager {
             timestamp: Date.now(),
           });
         },
+
         onError: (error) => {
           this.handleError({
             type: 'AUDIO_CAPTURE_ERROR',
@@ -65,6 +71,7 @@ export class TranscriptionManager {
         },
       });
 
+      // Ensure WebSocket is ready before audio starts flowing
       await this.deepgramClient.connect();
       await this.audioCapture.start();
 
@@ -102,16 +109,21 @@ export class TranscriptionManager {
   }
 
   private handleTranscript = (transcript: DeepgramTranscript): void => {
-    if (!transcript.text) return;
+    if (!transcript.text.trim()) return;
 
-    // text for responsiveness and accuracy buffering
     if (transcript.isFinal) {
-      this.transcriptBuffer += transcript.text + ' ';
-    }
+      this.transcriptBuffer +=
+        (this.transcriptBuffer ? ' ' : '') + transcript.text.trim();
 
-    this.callbacks.onTranscriptUpdate(
-      transcript.isFinal ? this.transcriptBuffer.trim() : transcript.text
-    );
+      this.callbacks.onTranscriptUpdate(this.transcriptBuffer);
+    } else {
+      const preview =
+        this.transcriptBuffer +
+        (this.transcriptBuffer ? ' ' : '') +
+        transcript.text;
+
+      this.callbacks.onTranscriptUpdate(preview);
+    }
   };
 
   private handleError(error: AppError): void {
@@ -122,15 +134,20 @@ export class TranscriptionManager {
 
   private setState(nextState: RecordingState): void {
     if (this.state === nextState) return;
+
     if (!this.isValidTransition(this.state, nextState)) {
       console.error(`Invalid transition: ${this.state} -> ${nextState}`);
       return;
     }
+
     this.state = nextState;
     this.callbacks.onStateChange(nextState);
   }
 
-  private isValidTransition(from: RecordingState, to: RecordingState): boolean {
+  private isValidTransition(
+    from: RecordingState,
+    to: RecordingState
+  ): boolean {
     const validTransitions: Record<RecordingState, RecordingState[]> = {
       [RecordingState.Idle]: [RecordingState.RequestingPermission],
       [RecordingState.RequestingPermission]: [
@@ -156,11 +173,7 @@ export class TranscriptionManager {
   }
 
   private canStart(): boolean {
-    return (
-      this.state === RecordingState.Idle ||
-      this.state === RecordingState.Ready ||
-      this.state === RecordingState.Error
-    );
+    return this.state === RecordingState.Idle;
   }
 
   private canStop(): boolean {

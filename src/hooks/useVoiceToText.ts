@@ -6,12 +6,14 @@ import { copyToClipboard } from '../utils/clipboardUtils';
 
 export const useVoiceToText = (): UseVoiceToTextReturn => {
   const managerRef = useRef<TranscriptionManager | null>(null);
+  const transcriptRef = useRef(''); 
 
   const [state, setState] = useState<RecordingState>(RecordingState.Idle);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
 
   // Initialize TranscriptionManager once
   useEffect(() => {
@@ -20,7 +22,11 @@ export const useVoiceToText = (): UseVoiceToTextReturn => {
         setState(nextState);
       },
       onTranscriptUpdate: (text) => {
+        transcriptRef.current = text; 
         setTranscript(text);
+      },
+      onAudioLevel: (level: number) => {
+        setAudioLevel(level);
       },
       onError: (err: AppError) => {
         setError(err.message);
@@ -46,25 +52,25 @@ export const useVoiceToText = (): UseVoiceToTextReturn => {
     }
   }, []);
 
-  // Clipboard functionality
   const copyTranscript = useCallback(async (): Promise<boolean> => {
-    if (!transcript) return false;
+    const text = transcriptRef.current;
+    if (!text.trim()) return false;
 
-    const success = await copyToClipboard(transcript);
+    const success = await copyToClipboard(text);
     setCopySuccess(success);
     return success;
-  }, [transcript]);
+  }, []);
 
   const stopRecording = useCallback((): void => {
     managerRef.current?.stop();
 
-    // Auto-copy final transcript after a short delay.
+    // Auto-copy final transcript after Deepgram flush
     setTimeout(() => {
-      if (transcript.trim()) {
+      if (transcriptRef.current.trim()) {
         copyTranscript();
       }
     }, 500);
-  }, [transcript, copyTranscript]);
+  }, [copyTranscript]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -79,6 +85,7 @@ export const useVoiceToText = (): UseVoiceToTextReturn => {
     state,
     transcript,
     error,
+    audioLevel,
     startRecording,
     stopRecording,
     copyToClipboard: copyTranscript,

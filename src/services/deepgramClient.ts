@@ -72,7 +72,7 @@ export const createDeepgramClient = (callbacks: DeepgramCallbacks) => {
 
   const sendAudio = (chunk: Int16Array): void => {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
-      console.warn('WebSocket is not open. Cannot send audio chunk.');
+      // console.warn('WebSocket is not open. Cannot send audio chunk.');
       return;
     }
     socket.send(chunk.buffer);

@@ -61,6 +61,7 @@ export interface DeepgramMessage {
 export interface TranscriptionManagerCallbacks {
   onStateChange: (state: RecordingState) => void;
   onTranscriptUpdate: (text: string) => void;
+  onAudioLevel?: (level: number) => void;
   onError: (error: AppError) => void;
 }
 
@@ -69,6 +70,7 @@ export interface UseVoiceToTextReturn {
   state: RecordingState;
   transcript: string;
   error: string | null;
+  audioLevel: number;
   startRecording: () => Promise<void>;
   stopRecording: () => void;
   copyToClipboard: () => Promise<boolean>;

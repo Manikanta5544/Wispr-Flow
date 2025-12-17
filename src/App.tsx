@@ -7,12 +7,14 @@ import RecordButton from './components/RecordButton';
 import TranscriptDisplay from './components/TranscriptDisplay';
 import StatusIndicator from './components/StatusIndicator';
 import ErrorBoundary from './components/ErrorBoundary';
+import AudioVisualizer from './components/AudioVisualizer'
 
 const App: React.FC = () => {
   const {
     state,
     transcript,
     error,
+    audioLevel,
     startRecording,
     stopRecording,
     copyToClipboard,
@@ -47,6 +49,10 @@ const App: React.FC = () => {
           onStartRecording={startRecording}
           onStopRecording={stopRecording}
           disabled={isInitializing}
+        />
+        <AudioVisualizer
+          isRecording={state === RecordingState.Recording}
+          audioLevel={audioLevel}
         />
 
         <StatusIndicator state={state} error={error} />
