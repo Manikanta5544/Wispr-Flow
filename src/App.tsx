@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { RecordingState } from '../src/state/recordingState';
+import { useVoiceToText } from '../src/hooks/useVoiceToText';
+import { useKeyboardShortcut } from '../src/hooks/useKeyboardShortcut';
 
-function App() {
-  const [count, setCount] = useState(0)
+import RecordButton from '../src/components/RecordButton';
+import TranscriptDisplay from '../src/components/TranscriptDisplay';
+import StatusIndicator from '../src/components/StatusIndicator';
+import ErrorBoundary from '../src/components/ErrorBoundary';
+
+const App: React.FC = () => {
+  const {
+    state,
+    transcript,
+    error,
+    startRecording,
+    stopRecording,
+    copyToClipboard,
+    copySuccess,
+    isInitializing,
+  } = useVoiceToText();
+
+  // Push-to-talk keyboard shortcut (Ctrl+Shift+V)
+  useKeyboardShortcut({
+    key: 'V',
+    ctrlKey: true,
+    shiftKey: true,
+    onKeyDown: startRecording,
+    onKeyUp: stopRecording,
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <ErrorBoundary>
+      <main className="app-container">
+        <h1 className="app-title">Voice to Text</h1>
 
-export default App
+        <RecordButton
+          state={state}
+          onStartRecording={startRecording}
+          onStopRecording={stopRecording}
+          disabled={isInitializing}
+        />
+
+        <StatusIndicator state={state} error={error} />
+
+        <TranscriptDisplay
+          transcript={transcript}
+          isProcessing={state === RecordingState.Processing}
+          onCopy={copyToClipboard}
+          copySuccess={copySuccess}
+        />
+      </main>
+    </ErrorBoundary>
+  );
+};
+
+export default App;
