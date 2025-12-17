@@ -10,6 +10,8 @@ interface KeyboardShortcutOptions {
   onKeyUp?: () => void;
 }
 
+// const [isHoldingShortcut, setIsHoldingShortcut] = useState(false);
+
 export const useKeyboardShortcut = ({
   key,
   ctrlKey = false,

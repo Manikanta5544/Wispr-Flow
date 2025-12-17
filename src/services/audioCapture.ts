@@ -24,6 +24,9 @@ export const createAudioCapture = (callbacks: AudioCaptureCallbacks) => {
 
       source = audioContext.createMediaStreamSource(stream);
 
+      // ScriptProcessorNode is deprecated in favor of AudioWorklet
+      // but AudioWorklet requires separate file loading which complicates Tauri bundling.
+      // For production, migrate to AudioWorklet.
       processor = audioContext.createScriptProcessor(
         AUDIO_CONFIG.BUFFER_SIZE,
         AUDIO_CONFIG.CHANNELS,

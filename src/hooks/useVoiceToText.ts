@@ -46,10 +46,6 @@ export const useVoiceToText = (): UseVoiceToTextReturn => {
     }
   }, []);
 
-  const stopRecording = useCallback((): void => {
-    managerRef.current?.stop();
-  }, []);
-
   // Clipboard functionality
   const copyTranscript = useCallback(async (): Promise<boolean> => {
     if (!transcript) return false;
@@ -58,6 +54,17 @@ export const useVoiceToText = (): UseVoiceToTextReturn => {
     setCopySuccess(success);
     return success;
   }, [transcript]);
+
+  const stopRecording = useCallback((): void => {
+    managerRef.current?.stop();
+
+    // Auto-copy final transcript after a short delay.
+    setTimeout(() => {
+      if (transcript.trim()) {
+        copyTranscript();
+      }
+    }, 500);
+  }, [transcript, copyTranscript]);
 
   // Cleanup on unmount
   useEffect(() => {

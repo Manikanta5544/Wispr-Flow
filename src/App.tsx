@@ -1,12 +1,12 @@
 import React from 'react';
-import { RecordingState } from '../src/state/recordingState';
-import { useVoiceToText } from '../src/hooks/useVoiceToText';
-import { useKeyboardShortcut } from '../src/hooks/useKeyboardShortcut';
+import { RecordingState } from './state/recordingState';
+import { useVoiceToText } from './hooks/useVoiceToText';
+import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
 
-import RecordButton from '../src/components/RecordButton';
-import TranscriptDisplay from '../src/components/TranscriptDisplay';
-import StatusIndicator from '../src/components/StatusIndicator';
-import ErrorBoundary from '../src/components/ErrorBoundary';
+import RecordButton from './components/RecordButton';
+import TranscriptDisplay from './components/TranscriptDisplay';
+import StatusIndicator from './components/StatusIndicator';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const App: React.FC = () => {
   const {
@@ -25,8 +25,16 @@ const App: React.FC = () => {
     key: 'V',
     ctrlKey: true,
     shiftKey: true,
-    onKeyDown: startRecording,
-    onKeyUp: stopRecording,
+    onKeyDown: () => {
+      if (state === RecordingState.Idle || state === RecordingState.Ready) {
+        startRecording();
+      }
+    },
+    onKeyUp: () => {
+      if (state === RecordingState.Recording) {
+        stopRecording();
+      }
+    },
   });
 
   return (
