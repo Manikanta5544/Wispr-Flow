@@ -28,18 +28,18 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
   const variant = getVariant(state);
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-2">
       <button
         onClick={handleClick}
         disabled={!isInteractive}
-        className={variantStyles[variant]}
+        className={`${variantStyles[variant]} shadow-sm`}
         aria-label={ariaLabels[state] ?? 'Recording control'}
         type="button"
       >
         {state === RecordingState.Processing ? (
           <Spinner />
         ) : (
-          <span className="text-sm">
+          <span className="text-sm font-medium">
             {buttonLabels[state] ?? '...'}
           </span>
         )}
@@ -68,13 +68,13 @@ type ButtonVariant = 'idle' | 'recording' | 'processing' | 'error';
 // Button Variant styles
 const variantStyles: Record<ButtonVariant, string> = {
   idle:
-    'w-16 h-16 rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-300',
+    'w-20 h-20 text-base rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-300',
   recording:
-    'w-16 h-16 rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-red-600 hover:bg-red-700 text-white animate-pulse focus:ring-red-300',
+    'w-20 h-20 text-base rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-red-600 hover:bg-red-700 text-white animate-pulse focus:ring-red-300',
   processing:
-    'w-16 h-16 rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-gray-400 text-white cursor-not-allowed',
+    'w-20 h-20 text-base rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-gray-400 text-white cursor-not-allowed',
   error:
-    'w-16 h-16 rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-red-500 hover:bg-red-600 text-white focus:ring-red-300',
+    'w-20 h-20 text-base rounded-full transition-all duration-200 font-semibold focus:outline-none focus:ring-4 bg-red-500 hover:bg-red-600 text-white focus:ring-red-300',
 };
 
 // Button labels based on recording state

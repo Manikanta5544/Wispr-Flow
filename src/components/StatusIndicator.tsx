@@ -23,7 +23,7 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   if (!message) return null;
 
   return (
-    <p className="text-sm text-gray-600 text-center">
+    <p className="text-xs text-gray-500 text-center">
       {message}
     </p>
   );

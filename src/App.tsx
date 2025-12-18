@@ -28,9 +28,8 @@ const App: React.FC = () => {
     ctrlKey: true,
     shiftKey: true,
     onKeyDown: () => {
-      if (state === RecordingState.Idle || state === RecordingState.Ready) {
-        startRecording();
-      }
+      if (state !== RecordingState.Idle && state !== RecordingState.Ready) return;
+      startRecording();
     },
     onKeyUp: () => {
       if (state === RecordingState.Recording) {
@@ -42,28 +41,45 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <main className="app-container">
-        <h1 className="app-title">Voice to Text</h1>
+        <div className="app-card">
+          <div className="w-full max-w-2xl bg-white rounded-xl shadow-sm px-8 py-10 flex flex-col items-center gap-6">
+          <h1 className="app-title">Voice to Text</h1>
 
-        <RecordButton
-          state={state}
-          onStartRecording={startRecording}
-          onStopRecording={stopRecording}
-          disabled={isInitializing}
-        />
-        <AudioVisualizer
-          isRecording={state === RecordingState.Recording}
-          audioLevel={audioLevel}
-        />
+          <div className="flex flex-col items-center gap-3">
+            <RecordButton
+              state={state}
+              onStartRecording={startRecording}
+              onStopRecording={stopRecording}
+              disabled={isInitializing}
+            />
 
-        <StatusIndicator state={state} error={error} />
+            <div className="min-h-[100px] flex flex-col items-center gap-2">
+              {state === RecordingState.Recording && (
+                <p className="text-xs text-gray-500">
+                  Live audio input
+                </p>
+              )}
 
-        <TranscriptDisplay
-          transcript={transcript}
-          isProcessing={state === RecordingState.Processing}
-          onCopy={copyToClipboard}
-          copySuccess={copySuccess}
-        />
+              <AudioVisualizer
+                isRecording={state === RecordingState.Recording}
+                audioLevel={audioLevel}
+              />
+            </div>
+          </div>
+
+
+          <StatusIndicator state={state} error={error} />
+
+          <TranscriptDisplay
+            transcript={transcript}
+            isProcessing={state === RecordingState.Processing}
+            onCopy={copyToClipboard}
+            copySuccess={copySuccess}
+          />
+        </div>
+        </div>
       </main>
+
     </ErrorBoundary>
   );
 };

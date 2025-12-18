@@ -20,7 +20,16 @@ body {
   gap: 1.5rem;
 }
 
+.app-card {
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px 24px 28px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
 .app-title {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
 }

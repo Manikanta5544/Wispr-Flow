@@ -11,7 +11,12 @@ export const TranscriptDisplay: React.FC<TranscriptDisplayProps> = ({
 
   return (
     <div className="w-full max-w-xl flex flex-col gap-2">
-      <div className="border rounded-md p-3 min-h-[120px] bg-white text-gray-900 text-sm whitespace-pre-wrap">
+      <p className="text-xs font-medium text-gray-500">
+        Transcription
+      </p>
+
+      <div className="rounded-lg border bg-white p-4 min-h-[140px] max-h-[240px] overflow-y-auto">
+
         {hasTranscript ? (
           transcript
         ) : (
@@ -30,7 +35,7 @@ export const TranscriptDisplay: React.FC<TranscriptDisplayProps> = ({
           type="button"
           onClick={onCopy}
           disabled={!hasTranscript}
-          className="text-blue-600 hover:underline disabled:text-gray-400"
+          className="px-3 py-1 rounded-md text-blue-600 hover:bg-blue-50 disabled:text-gray-400 disabled:hover:bg-transparent transition"
         >
           {copySuccess ? 'Copied!' : 'Copy'}
         </button>

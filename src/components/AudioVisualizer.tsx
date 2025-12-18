@@ -66,7 +66,7 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
 
   return (
     <div className="w-full max-w-md">
-      <div className="bg-gray-50 rounded-lg overflow-hidden shadow-inner p-2">
+      <div className="bg-gray-100 rounded-lg overflow-hidden p-2">
         <canvas
           ref={canvasRef}
           width={600}
