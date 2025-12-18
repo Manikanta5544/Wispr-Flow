@@ -16,6 +16,7 @@ export class TranscriptionManager {
   private audioCapture: ReturnType<typeof createAudioCapture> | null = null;
   private deepgramClient: ReturnType<typeof createDeepgramClient> | null = null;
   private isSocketReady = false;
+  private isStopping = false;
 
   constructor(callbacks: TranscriptionManagerCallbacks) {
     this.callbacks = callbacks;
@@ -29,7 +30,9 @@ export class TranscriptionManager {
       this.cleanup();
     }
 
-    this.setState(RecordingState.RequestingPermission);
+    if (this.state !== RecordingState.Error) {
+      this.setState(RecordingState.RequestingPermission);
+    }
 
     try {
       this.audioCapture = createAudioCapture({
@@ -73,7 +76,8 @@ export class TranscriptionManager {
         },
 
         onClose: () => {
-          // Final transcripts arrive before this
+          if (this.isStopping) return;
+
           this.cleanup();
           this.setState(RecordingState.Idle);
         },
@@ -100,6 +104,7 @@ export class TranscriptionManager {
   stop(): void {
     if (!this.canStop()) return;
 
+    this.isStopping = true;
     this.setState(RecordingState.Processing);
 
     try {
@@ -107,6 +112,10 @@ export class TranscriptionManager {
       this.deepgramClient?.finish();
     } catch {
       // no-op
+    } finally {
+      this.cleanup();
+      this.isStopping = false;
+      this.setState(RecordingState.Idle);
     }
   }
 
@@ -134,6 +143,8 @@ export class TranscriptionManager {
   };
 
   private handleError(error: AppError): void {
+    if (this.isStopping) return;
+
     this.cleanup();
     this.setState(RecordingState.Error);
     this.callbacks.onError(error);
@@ -170,6 +181,7 @@ export class TranscriptionManager {
       [RecordingState.Error]: [
         RecordingState.Idle,
         RecordingState.RequestingPermission,
+        RecordingState.Recording,
       ],
     };
 
