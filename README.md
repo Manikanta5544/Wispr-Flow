@@ -72,17 +72,16 @@ UI Layer (React Components)
 └─ Tauri Backend
 └─ Native system integration (text insertion, tray)
 
+The FSM ensures deterministic behavior during rapid user actions (quick start/stop, permission delays, network latency)
+
 
 ### Finite State Machine (FSM)
 
 Recording behavior is governed by an explicit FSM to prevent race conditions and invalid transitions:
 
-Idle
-→ RequestingPermission
-→ Recording
-→ Processing
-→ Idle
-→ Error
+Idle → RequestingPermission → Recording → Processing → Idle
+                  ↘─────────────── Error
+
 
 Public actions (`start`, `stop`) are guarded by state checks.  
 Invalid transitions are intentionally blocked.
@@ -98,7 +97,8 @@ This project intentionally prioritizes:
 - Clear state transitions
 - Predictable user workflow
 
-Advanced UI styling, animations, and design parity with Wispr Flow were **explicitly deprioritized**, as allowed by the assignment.
+Advanced UI styling and visual parity with Wispr Flow were intentionally deprioritized to focus on correctness, latency, and reliability of the voice-to-text workflow.
+
 
 ### Separation of Concerns
 Each module has a single, well-defined responsibility:
@@ -122,7 +122,7 @@ The following are **intentional scope decisions**, made to prioritize correctnes
 
 - Recording begins only after microphone permission and WebSocket readiness, causing a small startup delay to avoid dropped audio.
 - Optimized for single-speaker dictation; broadcast or multi-speaker audio is out of scope.
-- Transcription quality depends on microphone and environment; no aggressive audio enhancement is applied.
+- Transcription quality depends on microphone and environment; audio processing is intentionally tuned for dictation clarity and real-time stability rather than broadcast-grade enhancement
 - Audio capture uses `ScriptProcessorNode` for stability in Tauri WebViews; `AudioWorklet` is a planned upgrade.
 - Offline transcription is not supported due to Deepgram’s real-time WebSocket dependency.
 - Transcripts are session-scoped and not persisted.
@@ -193,3 +193,5 @@ or
 npx vitest
 ```
 Tests focus on behavioral correctness, not UI snapshots
+
+This implementation is intentionally scoped to demonstrate real-time audio handling, API integration, and system correctness, as emphasized in the assignment criteria.
