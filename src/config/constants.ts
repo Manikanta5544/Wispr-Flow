@@ -1,7 +1,9 @@
 // Audio config (85ms latency, mono audio)
 export const AUDIO_CONFIG = {
-  BUFFER_SIZE: 4096,
+  BUFFER_SIZE: 2048, // 50% buffer rate
   CHANNELS: 1,
+  SAMPLE_RATE: 16000,
+  SILENCE_THRESHOLD: 0.01,
 } as const;
 
 // Deepgram config
@@ -9,7 +11,7 @@ export const DEEPGRAM_CONFIG = {
   WS_URL: 'wss://api.deepgram.com/v1/listen',
   CONNECTION_TIMEOUT_MS: 10000,
   ENCODING: 'linear16',
-  SAMPLE_RATE: 48000,
+  SAMPLE_RATE: 16000,
   CHANNELS: 1,
   PUNCTUATE: true,
   INTERIM_RESULTS: true,

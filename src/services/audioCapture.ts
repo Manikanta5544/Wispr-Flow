@@ -1,5 +1,5 @@
 import type { AudioCaptureCallbacks, AudioChunk } from '../types';
-import { float32ToInt16 } from '../utils/audioUtils';
+import { calculateRMS, float32ToInt16 } from '../utils/audioUtils';
 import { AUDIO_CONFIG } from '../config/constants';
 
 export const createAudioCapture = (callbacks: AudioCaptureCallbacks) => {
@@ -14,8 +14,17 @@ export const createAudioCapture = (callbacks: AudioCaptureCallbacks) => {
     }
 
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioContext = new AudioContext();
+      stream = await navigator.mediaDevices.getUserMedia({ audio: {
+        channelCount: 1,
+        sampleRate: AUDIO_CONFIG.SAMPLE_RATE,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      }});
+      audioContext = new AudioContext({
+        sampleRate: AUDIO_CONFIG.SAMPLE_RATE,
+        latencyHint: 'interactive',
+      });
 
       // Resume if suspended
       if (audioContext.state === 'suspended') {
@@ -35,6 +44,11 @@ export const createAudioCapture = (callbacks: AudioCaptureCallbacks) => {
 
       processor.onaudioprocess = (event) => {
         const input = event.inputBuffer.getChannelData(0);
+        const rms = calculateRMS(input);  // silence gating (removes background noise)
+        if (rms < AUDIO_CONFIG.SILENCE_THRESHOLD) {
+          return;
+        }
+
         const pcm16 = float32ToInt16(input);
 
         callbacks.onAudioData({

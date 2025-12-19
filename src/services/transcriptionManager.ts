@@ -30,9 +30,7 @@ export class TranscriptionManager {
       this.cleanup();
     }
 
-    if (this.state !== RecordingState.Error) {
-      this.setState(RecordingState.RequestingPermission);
-    }
+    this.setState(RecordingState.RequestingPermission);
 
     try {
       this.audioCapture = createAudioCapture({
