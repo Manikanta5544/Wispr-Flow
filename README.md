@@ -171,11 +171,11 @@ npm run tauri:dev
 npm run tauri:build
 ```
 ### Usage
-- 1. Click Record or press Ctrl + Shift + V
-- 2. Speak naturally into the microphone
-- 3. Watch live transcription appear
-- 4. Stop recording
-- 5. Copy or insert the resulting text where needed
+1. Click Record or press Ctrl + Shift + V
+2. Speak naturally into the microphone
+3. Watch live transcription appear
+4. Stop recording
+5. Copy or insert the resulting text where needed
 
 ## Testing
 Core logic is covered by unit tests:
