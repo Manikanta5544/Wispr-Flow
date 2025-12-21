@@ -20,6 +20,21 @@ UI is intentionally minimal. The emphasis is on **user workflow**, **system beha
 
 ---
 
+## Demo & Walkthrough
+
+A short demo video showcasing the complete voice-to-text workflow is available below.
+
+The walkthrough demonstrates:
+- Push-to-talk recording flow  
+- Real-time transcription with interim and final results  
+- Recording state transitions (Idle → Recording → Processing)  
+- Text usability via clipboard and native insertion (desktop)
+
+**Demo Video:**  
+https://drive.google.com/file/d/1PlreYuK1FrU6a6LVcXplz7lFfzPsmrT6/view?usp=drive_link
+
+
+
 ## Implemented Features
 
 ### Voice Input & Recording
